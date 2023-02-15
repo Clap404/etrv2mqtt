@@ -2,7 +2,9 @@ import json
 from dataclasses import dataclass
 
 from libetrv.device import eTRVDevice
-from datetime import datetime
+from datetime import datetime, timezone
+from loguru import logger
+
 
 
 @dataclass(repr=False)
@@ -30,7 +32,8 @@ class eTRVUtils:
 
     @staticmethod
     def read_device(device: eTRVDevice) -> eTRVData:
-        return eTRVData(device.name, device.battery, device.temperature.room_temperature, device.temperature.set_point_temperature, datetime.now())
+        #for iOS date needs to be formated in ISO8061 to show properly in relative type
+        return eTRVData(device.name, device.battery, device.temperature.room_temperature, device.temperature.set_point_temperature, datetime.now(timezone.utc).isoformat())
 
     @staticmethod
     def set_temperature(device: eTRVDevice, temperature: float):

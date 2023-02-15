@@ -13,8 +13,13 @@ class Mqtt(object):
 
     _is_connected: bool = False
 
+    _is_polling: bool = False
+
     def is_connected(self) -> bool:
         return self._is_connected
+    
+    def is_polling(self) -> bool:
+        return self._is_polling
 
     def __init__(self, config: Config):
         self._config = config
@@ -35,10 +40,14 @@ class Mqtt(object):
         self._client.connect_async(config.mqtt.server, port=config.mqtt.port)
         self._client.loop_start()
 
-    def publish_device_data(self, name: str, data: str):
+    def publish_device_data(self, name: str, data: str, attribute):
         if self._client.is_connected():
-            self._client.publish(
-                self._config.mqtt.base_topic+'/'+name+'/state', payload=data)
+            if not attribute:
+                self._client.publish(
+                    self._config.mqtt.base_topic+'/'+name+'/state', payload=data)
+            else:
+                self._client.publish(
+                    self._config.mqtt.base_topic+'/'+name+'/attributes', payload=data)
 
     def _publish_autodiscovery_result(self, result: AutodiscoveryResult, retain: bool = False):
         self._client.publish(
@@ -72,6 +81,9 @@ class Mqtt(object):
         # subscribe to Home Assistant birth topic
         self._client.subscribe(self._config.mqtt.hass_birth_topic)
 
+        # subscribe to poll device
+        self._client.subscribe(self._config.mqtt.base_topic+'/+/poll')
+
         self._is_connected = True
 
     def _on_disconnect(self, client, userdata, rc):
@@ -99,6 +111,13 @@ class Mqtt(object):
             except ValueError:
                 logger.warning("{}: {} is not a valid float",
                                name, msg.payload)
+        
+        #poll device message
+        elif msg.topic.startswith(self._config.mqtt.base_topic) and msg.topic.endswith('/poll'):
+            name = msg.topic.split('/')[-2]
+            logger.debug("Received poll request for {}", name)
+            self._poll_device_callback(self, name)
+        
 
     @property
     def set_temperature_callback(self) -> Callable[[Mqtt, str, float], None]:
@@ -115,3 +134,11 @@ class Mqtt(object):
     @hass_birth_callback.setter
     def hass_birth_callback(self, callback: Callable[[Mqtt], None]):
         self._hass_birth_callback = callback
+
+    @property
+    def poll_device_callback(self) -> Callable[[Mqtt, str], None]:
+        return self._poll_device_callback
+
+    @poll_device_callback.setter
+    def poll_device_callback(self, callback: Callable[[Mqtt, str], None]):
+        self._poll_device_callback = callback

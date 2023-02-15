@@ -22,8 +22,8 @@ class Autodiscovery():
         "temp_stat_tpl":"{{ value_json.set_point }}",
         "curr_temp_t":"~/state",
         "curr_temp_tpl":"{{ value_json.room_temp }}",
-        "min_temp":"10",
-        "max_temp":"40",
+        "min_temp":"6",
+        "max_temp":"28",
         "temp_step":"0.5",
         "modes":["heat"],
         "device": {
@@ -33,7 +33,8 @@ class Autodiscovery():
         },
         "availability_topic": "etrv2mqtt/state",
         "payload_available": "online",
-        "payload_not_available": "offline"
+        "payload_not_available": "offline",
+        "json_attributes_topic": "~/attributes"
     }
     """)
 
