@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/keton/etrv2mqtt/master/etrv2mqtt/schemas/config.schema.json",
+  "thermostats": [
+    {
+      "topic": "my_trv",
+      "address": "00:04:2F:F5:52:14",
+      "secret_key": "977fb77b849ee4477965a56bf2fa2806"
+    }
+  ]
+}

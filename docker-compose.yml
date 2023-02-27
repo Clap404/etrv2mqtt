@@ -1,0 +1,11 @@
+services:
+  mqtt:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2.0
+    restart: unless-stopped
+    volumes:
+      - /srv/mosquitto:/mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    command: "mosquitto -c /mosquitto-no-auth.conf"

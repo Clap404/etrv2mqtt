@@ -42,7 +42,7 @@ class TRVDevice(DeviceBase):
             logger.debug("Polling data from {}", self._name)
              
             #publish message that data is being polled from this device
-            mqtt.publish_device_data(self._name, str('{"status": "Atnaujinama"}'), True)
+            mqtt.publish_device_data(self._name, str('{"status": "polling"}'), True)
 
             if not self._device.is_connected():
                 self._device.connect()
@@ -53,12 +53,12 @@ class TRVDevice(DeviceBase):
 
             #publish message that data has being polled from this device
             self._is_polling = False
-            mqtt.publish_device_data(self._name, str('{"status": "Atnaujinta"}'), True)
+            mqtt.publish_device_data(self._name, str('{"status": "up to date"}'), True)
             if self._stay_connected == False:
                 self._device.disconnect()
         except btle.BTLEDisconnectError as e:
             self._is_polling = False
-            mqtt.publish_device_data(self._name, str('{"status": "Ryšio klaida"}'), True)
+            mqtt.publish_device_data(self._name, str('{"status": "connection error"}'), True)
             logger.error(e)
 
     def set_temperature(self, mqtt: Mqtt, temperature: float):
